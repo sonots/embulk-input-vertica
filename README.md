@@ -1,6 +1,6 @@
-# PostgreSQL input plugins for Embulk
+# Vertica input plugins for Embulk
 
-PostgreSQL input plugins for Embulk loads records from PostgreSQL.
+Vertica input plugins for Embulk loads records from vertica.
 
 ## Overview
 
@@ -41,11 +41,12 @@ PostgreSQL input plugins for Embulk loads records from PostgreSQL.
 
 ```yaml
 in:
-  type: postgresql
+  type: vertica
   host: localhost
   user: myuser
   password: ""
   database: my_database
+  schema: sandbox
   table: my_table
   select: "col1, col2, col3"
   where: "col4 != 'a'"
@@ -55,14 +56,14 @@ If you need a complex SQL,
 
 ```yaml
 in:
-  type: postgresql
+  type: vertica
   host: localhost
   user: myuser
   password: ""
   database: my_database
   query: |
     SELECT t1.id, t1.name, t2.id AS t2_id, t2.name AS t2_name
-    FROM table1 AS t1
+    FROM schema1.table1 AS t1
     LEFT JOIN table2 AS t2
       ON t1.id = t2.t1_id
 ```
@@ -71,11 +72,12 @@ Advanced configuration:
 
 ```yaml
 in:
-  type: postgresql
+  type: vertica
   host: localhost
   user: myuser
   password: ""
   database: my_database
+  schema: sandbox
   table: "my_table"
   select: "col1, col2, col3"
   where: "col4 != 'a'"
@@ -85,8 +87,29 @@ in:
 
 ```
 
-## Build
+## Development
+
+Run example:
 
 ```
-$ ./gradlew gem
+$ ./gradlew classpath
+$ embulk run -I lib example/example.yml
+```
+
+Run test:
+
+```
+$ ./gradlew test
+```
+
+Run checkstyle:
+
+```
+$ ./gradlew check
+```
+
+Release gem:
+
+```
+$ ./gradlew gemPush
 ```

@@ -1,0 +1,11 @@
+in:
+  type: vertica 
+  host: 127.0.0.1
+  port: 5433
+  database: 'vdb'
+  user: dbadmin
+  password: xxxxx
+  schema: sandbox
+  table: embulk_test
+out:
+  type: stdout

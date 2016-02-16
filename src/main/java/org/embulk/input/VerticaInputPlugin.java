@@ -9,14 +9,13 @@ import org.embulk.config.ConfigDefault;
 import org.embulk.input.jdbc.AbstractJdbcInputPlugin;
 import org.embulk.input.jdbc.getter.ColumnGetterFactory;
 import org.embulk.input.vertica.VerticaInputConnection;
-import org.embulk.input.vertica.getter.VerticaColumnGetterFactory;
 import org.embulk.spi.PageBuilder;
 import org.joda.time.DateTimeZone;
 
 public class VerticaInputPlugin
         extends AbstractJdbcInputPlugin
 {
-    private static final Driver driver = new org.vertica.Driver();
+    private static final Driver driver = new com.vertica.jdbc.Driver();
 
     public interface VerticaPluginTask
             extends PluginTask

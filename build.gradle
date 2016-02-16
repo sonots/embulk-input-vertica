@@ -8,6 +8,9 @@ import com.github.jrubygradle.JRubyExec
 repositories {
     mavenCentral()
     jcenter()
+    maven {
+        url "http://dl.bintray.com/embulk/maven"
+    }
 }
 configurations {
     provided
@@ -23,9 +26,9 @@ dependencies {
     provided "org.embulk:embulk-core:0.8.2"
     testCompile "junit:junit:4.+"
 
-    compile 'org.embulk:embulk-input-jdbc:0.6.4'
-    compile 'org.postgresql:postgresql:9.4-1205-jdbc41'
-    runtime files('lib/vertica-jdbc-7.2.1-0.jar')
+    compile  "org.embulk.input.jdbc:embulk-input-jdbc:0.6.4"
+    compile  files('lib/vertica-jdbc-7.0.1-0.jar')
+    // compile  files('lib/vertica-jdbc-7.2.1-0.jar')
 }
 
 task classpath(type: Copy, dependsOn: ["jar"]) {
