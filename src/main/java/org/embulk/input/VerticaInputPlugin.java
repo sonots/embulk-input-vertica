@@ -8,24 +8,24 @@ import org.embulk.config.Config;
 import org.embulk.config.ConfigDefault;
 import org.embulk.input.jdbc.AbstractJdbcInputPlugin;
 import org.embulk.input.jdbc.getter.ColumnGetterFactory;
-import org.embulk.input.postgresql.PostgreSQLInputConnection;
-import org.embulk.input.postgresql.getter.PostgreSQLColumnGetterFactory;
+import org.embulk.input.vertica.VerticaInputConnection;
+import org.embulk.input.vertica.getter.VerticaColumnGetterFactory;
 import org.embulk.spi.PageBuilder;
 import org.joda.time.DateTimeZone;
 
-public class PostgreSQLInputPlugin
+public class VerticaInputPlugin
         extends AbstractJdbcInputPlugin
 {
-    private static final Driver driver = new org.postgresql.Driver();
+    private static final Driver driver = new org.vertica.Driver();
 
-    public interface PostgreSQLPluginTask
+    public interface VerticaPluginTask
             extends PluginTask
     {
         @Config("host")
         public String getHost();
 
         @Config("port")
-        @ConfigDefault("5432")
+        @ConfigDefault("5433")
         public int getPort();
 
         @Config("user")
@@ -41,24 +41,20 @@ public class PostgreSQLInputPlugin
         @Config("schema")
         @ConfigDefault("\"public\"")
         public String getSchema();
-
-        @Config("ssl")
-        @ConfigDefault("false")
-        public boolean getSsl();
     }
 
     @Override
     protected Class<? extends PluginTask> getTaskClass()
     {
-        return PostgreSQLPluginTask.class;
+        return VerticaPluginTask.class;
     }
 
     @Override
-    protected PostgreSQLInputConnection newConnection(PluginTask task) throws SQLException
+    protected VerticaInputConnection newConnection(PluginTask task) throws SQLException
     {
-        PostgreSQLPluginTask t = (PostgreSQLPluginTask) task;
+        VerticaPluginTask t = (VerticaPluginTask) task;
 
-        String url = String.format("jdbc:postgresql://%s:%d/%s",
+        String url = String.format("jdbc:vertica://%s:%d/%s",
                 t.getHost(), t.getPort(), t.getDatabase());
 
         Properties props = new Properties();
@@ -71,19 +67,19 @@ public class PostgreSQLInputPlugin
         // Socket options TCP_KEEPCNT, TCP_KEEPIDLE, and TCP_KEEPINTVL are not configurable.
         props.setProperty("tcpKeepAlive", "true");
 
-        if (t.getSsl()) {
-            // TODO add ssl_verify (boolean) option to allow users to verify certification.
-            //      see embulk-input-ftp for SSL implementation.
-            props.setProperty("ssl", "true");
-            props.setProperty("sslfactory", "org.postgresql.ssl.NonValidatingFactory");  // disable server-side validation
-        }
-        // setting ssl=false enables SSL. See org.postgresql.core.v3.openConnectionImpl.
+        // if (t.getSsl()) {
+        //     // TODO add ssl_verify (boolean) option to allow users to verify certification.
+        //     //      see embulk-input-ftp for SSL implementation.
+        //     props.setProperty("ssl", "true");
+        //     props.setProperty("sslfactory", "org.vertica.ssl.NonValidatingFactory");  // disable server-side validation
+        // }
+        // // setting ssl=false enables SSL. See org.vertica.core.v3.openConnectionImpl.
 
         props.putAll(t.getOptions());
 
         Connection con = driver.connect(url, props);
         try {
-            PostgreSQLInputConnection c = new PostgreSQLInputConnection(con, t.getSchema());
+            VerticaInputConnection c = new VerticaInputConnection(con, t.getSchema());
             con = null;
             return c;
         } finally {
@@ -91,11 +87,5 @@ public class PostgreSQLInputPlugin
                 con.close();
             }
         }
-    }
-
-    @Override
-    protected ColumnGetterFactory newColumnGetterFactory(PageBuilder pageBuilder, DateTimeZone dateTimeZone)
-    {
-        return new PostgreSQLColumnGetterFactory(pageBuilder, dateTimeZone);
     }
 }

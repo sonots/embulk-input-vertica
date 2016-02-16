@@ -8,12 +8,12 @@ import org.slf4j.Logger;
 import org.embulk.spi.Exec;
 import org.embulk.input.jdbc.JdbcInputConnection;
 
-public class PostgreSQLInputConnection
+public class VerticaInputConnection
         extends JdbcInputConnection
 {
-    private final Logger logger = Exec.getLogger(PostgreSQLInputConnection.class);
+    private final Logger logger = Exec.getLogger(VerticaInputConnection.class);
 
-    public PostgreSQLInputConnection(Connection connection, String schemaName)
+    public VerticaInputConnection(Connection connection, String schemaName)
             throws SQLException
     {
         super(connection, schemaName);
