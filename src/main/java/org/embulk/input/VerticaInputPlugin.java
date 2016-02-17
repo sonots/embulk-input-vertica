@@ -81,7 +81,8 @@ public class VerticaInputPlugin
             VerticaInputConnection c = new VerticaInputConnection(con, t.getSchema());
             con = null;
             return c;
-        } finally {
+        }
+        finally {
             if (con != null) {
                 con.close();
             }
