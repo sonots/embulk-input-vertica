@@ -9,7 +9,7 @@ repositories {
     mavenCentral()
     jcenter()
     maven {
-        url "http://dl.bintray.com/embulk/maven"
+        url "http://dl.bintray.com/embulk-input-jdbc/maven"
     }
 }
 configurations {
