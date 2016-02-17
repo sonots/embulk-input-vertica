@@ -10,7 +10,7 @@ Vertica input plugins for Embulk loads records from vertica.
 ## Configuration
 
 - **host**: database host name (string, required)
-- **port**: database port number (integer, 5432)
+- **port**: database port number (integer, 5433)
 - **user**: database login user name (string, required)
 - **password**: database login password (string, default: "")
 - **database**: destination database name (string, required)
