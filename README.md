@@ -87,6 +87,12 @@ in:
 
 ```
 
+## LICENSE
+
+See [./COPYING](COPYING)
+
+Note that vertica jdbc drivers are not licensed under the Apace License, 2.0. It follows [Vertica Community Edition HP Software License Agreement](https://my.vertica.com/software-license-agreement/)
+
 ## Development
 
 Run example:
