@@ -79,7 +79,7 @@ task gemspec {
 Gem::Specification.new do |spec|
   spec.name          = "${project.name}"
   spec.version       = "${project.version}"
-  spec.authors       = ["sonots"]
+  spec.authors       = ["Naotoshi Seo"]
   spec.summary       = %[Vertica input plugin for Embulk]
   spec.description   = %[Loads records from Vertica.]
   spec.email         = ["sonots@gmail.com"]
