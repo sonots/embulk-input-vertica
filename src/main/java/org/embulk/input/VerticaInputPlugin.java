@@ -1,5 +1,12 @@
 package org.embulk.input;
 
+import com.google.common.base.Optional;
+import com.google.common.base.Supplier;
+import com.google.common.base.Throwables;
+import com.google.common.collect.ImmutableList;
+
+import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.sql.Connection;
 import java.sql.Driver;
@@ -7,8 +14,15 @@ import java.sql.SQLException;
 import org.embulk.config.Config;
 import org.embulk.config.ConfigDefault;
 import org.embulk.input.jdbc.AbstractJdbcInputPlugin;
+import org.embulk.input.jdbc.JdbcColumn;
+import org.embulk.input.jdbc.JdbcColumnOption;
+import org.embulk.input.jdbc.JdbcSchema;
+import org.embulk.input.jdbc.getter.ColumnGetter;
 import org.embulk.input.jdbc.getter.ColumnGetterFactory;
 import org.embulk.input.vertica.VerticaInputConnection;
+import org.embulk.input.vertica.VerticaTypeOption;
+import org.embulk.input.vertica.getter.VerticaColumnGetterFactory;
+import org.embulk.spi.Exec;
 import org.embulk.spi.PageBuilder;
 import org.joda.time.DateTimeZone;
 
@@ -40,7 +54,10 @@ public class VerticaInputPlugin
         @Config("schema")
         @ConfigDefault("\"public\"")
         public String getSchema();
-    }
+
+        @Config("type_options")
+        @ConfigDefault("{}")
+        public Map<String, VerticaTypeOption> getTypeOptions();}
 
     @Override
     protected Class<? extends PluginTask> getTaskClass()
@@ -86,5 +103,36 @@ public class VerticaInputPlugin
                 con.close();
             }
         }
+    }
+
+    @Override
+    private List<ColumnGetter> newColumnGetters(PluginTask task, JdbcSchema querySchema, PageBuilder pageBuilder)
+            throws SQLException
+    {
+        ColumnGetterFactory factory = newColumnGetterFactory(task, pageBuilder, task.getDefaultTimeZone());
+        ImmutableList.Builder<ColumnGetter> getters = ImmutableList.builder();
+        for (JdbcColumn c : querySchema.getColumns()) {
+            JdbcColumnOption columnOption = columnOptionOf(task.getColumnOptions(), c);
+            getters.add(factory.newColumnGetter(c, columnOption));
+        }
+        return getters.build();
+    }
+
+    private static JdbcColumnOption columnOptionOf(Map<String, JdbcColumnOption> columnOptions, JdbcColumn targetColumn)
+    {
+        return Optional.fromNullable(columnOptions.get(targetColumn.getName())).or(
+                    // default column option
+                    new Supplier<JdbcColumnOption>()
+                    {
+                        public JdbcColumnOption get()
+                        {
+                            return Exec.newConfigSource().loadConfig(JdbcColumnOption.class);
+                        }
+                    });
+    }
+
+    protected ColumnGetterFactory newColumnGetterFactory(VerticaPluginTask task, PageBuilder pageBuilder, DateTimeZone dateTimeZone)
+    {
+        return new VerticaColumnGetterFactory(pageBuilder, dateTimeZone, task.getTypeOptions());
     }
 }
