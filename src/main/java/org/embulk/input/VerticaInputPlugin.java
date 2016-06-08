@@ -1,5 +1,9 @@
 package org.embulk.input;
 
+import com.google.common.base.Optional;
+
+import java.sql.PreparedStatement;
+import java.sql.Statement;
 import java.util.Properties;
 import java.sql.Connection;
 import java.sql.Driver;
@@ -7,14 +11,15 @@ import java.sql.SQLException;
 import org.embulk.config.Config;
 import org.embulk.config.ConfigDefault;
 import org.embulk.input.jdbc.AbstractJdbcInputPlugin;
-import org.embulk.input.jdbc.getter.ColumnGetterFactory;
 import org.embulk.input.vertica.VerticaInputConnection;
-import org.embulk.spi.PageBuilder;
-import org.joda.time.DateTimeZone;
+
+import org.embulk.spi.Exec;
+import org.slf4j.Logger;
 
 public class VerticaInputPlugin
         extends AbstractJdbcInputPlugin
 {
+    private final Logger logger = Exec.getLogger(VerticaInputPlugin.class);
     private static final Driver driver = new com.vertica.jdbc.Driver();
 
     public interface VerticaPluginTask
@@ -40,6 +45,10 @@ public class VerticaInputPlugin
         @Config("schema")
         @ConfigDefault("\"public\"")
         public String getSchema();
+
+        @Config("resource_pool")
+        @ConfigDefault("null")
+        public Optional<String> getResourcePool();
     }
 
     @Override
@@ -77,7 +86,16 @@ public class VerticaInputPlugin
         props.putAll(t.getOptions());
 
         Connection con = driver.connect(url, props);
+
         try {
+            if (t.getResourcePool().isPresent()) {
+                Statement stmt = con.createStatement();
+                String escapedResourcePool = t.getResourcePool().get().replaceAll("'", "''");
+                String sql = String.format("SET SESSION RESOURCE_POOL = '%s'", escapedResourcePool);
+                logger.info("SQL: " + sql);
+                stmt.execute(sql);
+            }
+
             VerticaInputConnection c = new VerticaInputConnection(con, t.getSchema());
             con = null;
             return c;

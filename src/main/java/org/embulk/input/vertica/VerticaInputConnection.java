@@ -1,8 +1,6 @@
 package org.embulk.input.vertica;
 
 import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import org.slf4j.Logger;
 import org.embulk.spi.Exec;

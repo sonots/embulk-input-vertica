@@ -10,3 +10,4 @@ build/
 .tags
 .ruby-version
 example2
+*.iml
