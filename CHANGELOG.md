@@ -1,3 +1,9 @@
+# 0.1.2
+
+Enhancements:
+
+* Add `resouce_pool` option
+
 # 0.1.1
 
 Changes:
